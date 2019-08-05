@@ -1,0 +1,68 @@
+#!/bin/sh
+set -eu -o pipefail
+exec 3>&1 1>&2
+
+SRC="$1"
+
+payload=$(mktemp /tmp/resource-out.XXXXXX)
+cat > "${payload}" <&0
+
+DEBUG=$(jq -r '.source.debug // false' < "${payload}")
+if [ $DEBUG == "true" ]; then
+  set -x
+fi
+
+region=$(jq -r '.source.region // ""' < "${payload}")
+if [ -z "$region" ]; then
+  region=$GCP_REGION
+fi
+
+if [ -z "$region" ]; then
+  echo "Unable to determine GCP region"
+  exit 1
+fi
+
+credentials=$(jq -r '.source.credentials // ""' < "${payload}")
+if [ ! -z "$credentials" ]; then
+  export AWS_SDK_LOAD_CONFIG="true"
+  export AWS_SHARED_CREDENTIALS_FILE=$SRC/$credentials
+fi
+
+profile=$(jq -r '.params.profile // ""' < "${payload}")
+if [ ! -z "$payload" ]; then
+  export AWS_PROFILE=$profile
+fi
+
+template=$(jq -r '.params.template // empty' < "${payload}")
+if [ -z "${template}" ]; then
+  echo "template not passed in params:" >&2
+  jq '.params // {}' < "${payload}" >&2
+  exit 1
+elif [ ! -f "$SRC/${template}" ]; then
+  echo "template $SRC/${template} does not exist" >&2
+  exit 1
+fi
+
+declare -a args=()
+mapfile -t files < <(jq -r '.params.var_file // empty | if type =="array" then .[] else . end' < "${payload}")
+
+for file in ${files[@]}; do
+  if [ ! -f "$SRC/${file}" ]; then
+    echo "var_file $SRC/${file} does not exist" >&2
+    exit 1
+  else
+    args+=("-var-file=$SRC/${file}")
+  fi
+done
+
+jq '.params|del(.template,.var_file) // empty' < "${payload}" > /tmp/vars.json
+
+cd $(dirname $SRC/${template})
+
+packer validate "${args[@]}" -var-file=/tmp/vars.json $SRC/${template}
+packer build -machine-readable "${args[@]}" -var-file=/tmp/vars.json $SRC/${template} \
+  | tee /tmp/output | awk -F, '/,ui,/ { print $5 }' | sed -u 's#%!(PACKER_COMMA)#,#g;s#\\n#\n#g'
+
+image=$(awk -F, '$5 == "id" { print $6 }' /tmp/output | sed 's/%!(PACKER_COMMA)/\n/' | grep $region | awk -F: '{ print $2 }')
+
+jq -n --arg image "$image" '{ "version": { "image": $image } }' >&3

@@ -1,0 +1,12 @@
+
+#!/bin/sh
+set -eu -o pipefail
+exec 3>&1 1>&2
+
+jq . < /dev/stdin > /tmp/input
+
+DEST="$1"
+
+jq '.version.image // empty' /tmp/input > "$DEST/id"
+
+jq '{version, metadata: (.metadata // [])}' /tmp/input >&3
