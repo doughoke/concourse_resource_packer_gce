@@ -2,6 +2,8 @@
 set -eu -o pipefail
 exec 3>&1 1>&2
 
+. ./common
+
 SRC="$1"
 
 payload=$(mktemp /tmp/resource-out.XXXXXX)
@@ -17,21 +19,20 @@ if [ -z "$region" ]; then
   region=$GCP_REGION
 fi
 
-if [ -z "$region" ]; then
+if [ -z "${region}" ]; then
   echo "Unable to determine GCP region"
   exit 1
 fi
 
 credentials=$(jq -r '.source.credentials // ""' < "${payload}")
-if [ ! -z "$credentials" ]; then
-  export AWS_SDK_LOAD_CONFIG="true"
-  export AWS_SHARED_CREDENTIALS_FILE=$SRC/$credentials
+if [ ! -z "${credentials}" ]; then
+  echo "Unable to connect to gcloud api.  Please include credentials."
+  exit 1
+else
+  saveGCloudJsonKey ${credentials}
+  activateGCloudAccount
 fi
 
-profile=$(jq -r '.params.profile // ""' < "${payload}")
-if [ ! -z "$payload" ]; then
-  export AWS_PROFILE=$profile
-fi
 
 template=$(jq -r '.params.template // empty' < "${payload}")
 if [ -z "${template}" ]; then

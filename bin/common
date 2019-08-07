@@ -1,0 +1,14 @@
+#!/bin/sh
+
+function saveGCloudJsonKey() {
+  if [ -f "./json_key.json" ]
+  then
+    set +x
+    echo "${1}" > "./json_key.json"
+    set -x
+  fi
+}
+
+function activateGCloudAccount() {
+  gcloud auth activate-service-account --key-file ./json_key.json
+}
