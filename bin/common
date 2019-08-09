@@ -3,9 +3,12 @@
 function saveGCloudJsonKey() {
   if [ -f "./json_key.json" ]
   then
+    pwd
     set +x
     echo "${1}" > "./json_key.json"
-    set -x
+    if [ $DEBUG == "true" ]; then
+      set -x
+    fi
   fi
 }
 
