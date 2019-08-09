@@ -20,13 +20,13 @@ if [ -z "$region" ]; then
 fi
 
 if [ -z "${region}" ]; then
-  echo "Unable to determine GCP region"
+  echo "Resource configuration error. Unable to determine GCP region"
   exit 1
 fi
 
 credentials=$(jq -r '.source.credentials // ""' < "${payload}")
-if [ ! -z "${credentials}" ]; then
-  echo "Unable to connect to gcloud api.  Please include credentials."
+if [ -z "${credentials}" ]; then
+  echo "Resource configuration error. Unable to connect to gcloud api.  Please include credentials."
   exit 1
 else
   saveGCloudJsonKey ${credentials}
