@@ -1,11 +1,11 @@
 #!/bin/sh
 
 function saveGCloudJsonKey() {
-  if [ -f "./json_key.json" ]
+  if [ -f "/opt/resource/json_key.json" ]
   then
     pwd
     set +x
-    echo "${1}" > "./json_key.json"
+    echo "${1}" > "/opt/resource/json_key.json"
     if [ $DEBUG == "true" ]; then
       set -x
     fi
@@ -13,5 +13,5 @@ function saveGCloudJsonKey() {
 }
 
 function activateGCloudAccount() {
-  gcloud auth activate-service-account --key-file ./json_key.json
+  gcloud auth activate-service-account --key-file /opt/resource/json_key.json
 }
