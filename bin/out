@@ -44,7 +44,7 @@ elif [ ! -f "$SRC/${template}" ]; then
   exit 1
 fi
 
-declare -a args=()
+declare -a args
 mapfile -t files < <(jq -r '.params.var_file // empty | if type =="array" then .[] else . end' < "${payload}")
 
 for file in ${files[@]}; do
