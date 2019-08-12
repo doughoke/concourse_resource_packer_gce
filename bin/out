@@ -45,7 +45,8 @@ elif [ ! -f "$SRC/${template}" ]; then
 fi
 
 ARGS=""
-FILES=$(jq -r '.params.var_file // empty | if type =="array" then .[] else . end' /tmp/input)
+
+FILES=$(jq -r '.params.var_file // empty | if type =="array" then .[] else . end' < "${payload}")
 
 for FILE in $FILES; do
   if [ ! -f "$SRC/$FILE" ]; then
