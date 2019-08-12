@@ -29,7 +29,7 @@ if [ -z "${credentials}" ]; then
   echo "Resource configuration error. Unable to connect to gcloud api.  Please include credentials."
   exit 1
 else
-  saveGCloudJsonKey ${credentials}
+  saveGCloudJsonKey "${credentials}"
   activateGCloudAccount
 fi
 
