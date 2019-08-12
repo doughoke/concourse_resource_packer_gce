@@ -44,15 +44,15 @@ elif [ ! -f "$SRC/${template}" ]; then
   exit 1
 fi
 
-declare -a args
-mapfile -t files < <(jq -r '.params.var_file // empty | if type =="array" then .[] else . end' < "${payload}")
+ARGS=""
+FILES=$(jq -r '.params.var_file // empty | if type =="array" then .[] else . end' /tmp/input)
 
-for file in ${files[@]}; do
-  if [ ! -f "$SRC/${file}" ]; then
-    echo "var_file $SRC/${file} does not exist" >&2
+for FILE in $FILES; do
+  if [ ! -f "$SRC/$FILE" ]; then
+    echo "var_file $SRC/$FILE does not exist" >&2
     exit 1
   else
-    args+=("-var-file=$SRC/${file}")
+    ARGS="$ARGS -var-file=$SRC/$FILE"
   fi
 done
 
