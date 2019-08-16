@@ -65,6 +65,6 @@ packer validate $ARGS -var-file=/tmp/vars.json $SRC/${template}
 packer build -machine-readable $ARGS -var-file=/tmp/vars.json $SRC/${template} \
   | tee /tmp/output | awk -F, '/,ui,/ { print $5 }' | sed -u 's#%!(PACKER_COMMA)#,#g;s#\\n#\n#g'
 
-image=$(awk -F, '$5 == "id" { print $6 }' /tmp/output | sed 's/%!(PACKER_COMMA)/\n/' | grep $region | awk -F: '{ print $2 }')
+image=$(awk -F, '$5 == "id" { print $6 }' /tmp/output )
 
 jq -n --arg image "$image" '{ "version": { "image": $image } }' >&3
