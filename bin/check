@@ -1,5 +1,51 @@
-#!/bin/sh
+# #!/bin/sh
+# set -eu -o pipefail
+# exec 3>&1 1>&2
+#
+# jq '[.version // empty]' <&0 >&3
+
+#!/bin/bash
+
 set -eu -o pipefail
 exec 3>&1 1>&2
 
-jq '[.version // empty]' <&0 >&3
+payload=$(mktemp /tmp/resource-check.XXXXXX)
+cat > "${payload}" <&0
+
+DEBUG=$(jq -r '.source.debug // false' < "${payload}")
+if [ $DEBUG == "true" ]; then
+  set -x
+fi
+
+region=$(jq -r '.source.region // ""' < "${payload}")
+if [ -z "$region" ]; then
+  region=$GCP_REGION
+fi
+
+if [ -z "$region" ]; then
+  echo "Resource configuration error. Unable to determine GCP region"
+  exit 1
+fi
+
+family=$(jq -r '.params.family // ""' < "${payload}")
+if [ -z "${family}" ]; then
+  family=$GCP_IMAGE_FAMILY
+fi
+
+if [ -z "$family" ]; then
+  echo "Resource get configuration error. Unable to determine image family"
+  exit 1
+fi
+
+
+credentials=$(jq -r '.source.credentials // ""' < "${payload}")
+if [ -z "${credentials}" ]; then
+  echo "Resource configuration error. Unable to connect to gcloud api.  Please include credentials."
+  exit 1
+else
+  saveGCloudJsonKey "${credentials}"
+  activateGCloudAccount
+fi
+
+gcloud compute images list --filter="family:${family}" --format="json" --sort-by="creation_date" | jq 'map({ "image": .})' >&3
+#aws ec2 describe-images --region $region $owners $executable_users $filters_param "${filters[@]}" --query "sort_by(Images, &CreationDate)[].ImageId" | jq 'map({ "ami": .})' >&3

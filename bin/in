@@ -1,12 +1,58 @@
+#
+# #!/bin/sh
+# set -eu -o pipefail
+# exec 3>&1 1>&2
+#
+# jq . < /dev/stdin > /tmp/input
+#
+# DEST="$1"
+#
+# jq '.version.image // empty' /tmp/input > "$DEST/id"
+#
+# jq '{version, metadata: (.metadata // [])}' /tmp/input >&3
 
-#!/bin/sh
+#!/bin/bash
+
 set -eu -o pipefail
 exec 3>&1 1>&2
 
-jq . < /dev/stdin > /tmp/input
-
 DEST="$1"
 
-jq '.version.image // empty' /tmp/input > "$DEST/id"
+payload=$(mktemp /tmp/resource-in.XXXXXX)
+cat > "${payload}" <&0
 
-jq '{version, metadata: (.metadata // [])}' /tmp/input >&3
+DEBUG=$(jq -r '.source.debug // false' < "${payload}")
+if [ $DEBUG == "true" ]; then
+  set -x
+fi
+
+version=$(jq -r '.version.image' < "${payload}")
+
+region=$(jq -r '.source.region // ""' < "${payload}")
+if [ -z "$region" ]; then
+  region=$GCP_REGION
+fi
+
+if [ -z "$region" ]; then
+    echo "Resource configuration error. Unable to determine GCP region"
+  exit 1
+fi
+
+credentials=$(jq -r '.source.credentials // ""' < "${payload}")
+if [ -z "${credentials}" ]; then
+  echo "Resource configuration error. Unable to connect to gcloud api.  Please include credentials."
+  exit 1
+else
+  saveGCloudJsonKey "${credentials}"
+  activateGCloudAccount
+fi
+
+#gcloud compute images list --filter="name:${version}" --format="json" --project your-project > "$DEST/image.json" ##project not needed but keeping as a follow up
+
+gcloud compute images list --filter="name:${version}" --format="json" > "$DEST/image.json"
+
+echo ${version} > $DEST/version.txt
+jq -n --arg version "$version" '{"image":$version}' > $DEST/version.json
+
+
+jq '{"version": {"image": .name}, "metadata": [{"name": "id", "value": .id},{"name": "family", "value": .family},{"name": "creation_ts", "value": .creationTimestamp},{"name": "self_link", "value": .selfLink}]}' < "$DEST/image.json" >&3
