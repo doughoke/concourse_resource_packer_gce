@@ -59,7 +59,8 @@ done
 
 jq '.params|del(.template,.var_file) // empty' < "${payload}" > /tmp/vars.json
 
-cd $(dirname $SRC/${template})
+##Do I need this?
+#cd $(dirname $SRC/${template})
 
 packer validate $ARGS -var-file=/tmp/vars.json $SRC/${template}
 packer build -machine-readable $ARGS -var-file=/tmp/vars.json $SRC/${template} \
