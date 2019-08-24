@@ -68,5 +68,5 @@ packer build -machine-readable $ARGS -var-file=/tmp/vars.json $SRC/${template} \
 
 image=$(awk -F, '$5 == "id" { print $6 }' /tmp/output )
 
-jq -n --arg image "$image" '{ "version": { "image": $image } }' > /tmp/out-version.json.test
-jq -n --arg image "$image" '{ "version": { "image": $image } }' >&3
+jq -n --arg image "$image" '{ "version": { "image": $image }, "metadata": [] }' > /tmp/out-version.json.test
+jq -n --arg image "$image" '{ "version": { "image": $image }, "metadata": [] }' >&3
