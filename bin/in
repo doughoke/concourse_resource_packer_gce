@@ -1,25 +1,12 @@
-#
-# #!/bin/sh
-# set -eu -o pipefail
-# exec 3>&1 1>&2
-#
-# jq . < /dev/stdin > /tmp/input
-#
-# DEST="$1"
-#
-# jq '.version.image // empty' /tmp/input > "$DEST/id"
-#
-# jq '{version, metadata: (.metadata // [])}' /tmp/input >&3
+#!/bin/sh
 
-#!/bin/bash
-
-#set -eu -o pipefail #add later
+set -eu -o pipefail
 exec 3>&1 1>&2
 
 . /opt/resource/common
 
 DEST="$1"
-echo $DEST
+
 
 payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
@@ -27,6 +14,10 @@ cat > "${payload}" <&0
 DEBUG=$(jq -r '.source.debug // false' < "${payload}")
 if [ $DEBUG == "true" ]; then
   set -x
+fi
+
+if [ $DEBUG == "true" ]; then
+  echo $DEST
 fi
 
 version=$(jq -r '.version.image' < "${payload}")
