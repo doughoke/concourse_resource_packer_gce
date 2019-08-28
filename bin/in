@@ -42,8 +42,13 @@ else
 fi
 
 #gcloud compute images list --filter="name:${version}" --format="json" --project your-project > "$DEST/image.json" ##project not needed but keeping as a follow up
+# --optional resource configs
+extraargs=""
+project=$(jq -r '.source.project // ""' < "${payload}")
+if [ -z "${project}" ]; then
+  extraargs+=('--project="${project}"')
 
-gcloud compute images list --filter="name:${version}" --format="json" > "$DEST/image.json"
+gcloud compute images list --filter="name:${version}" --format="json" ${extraargs} > "$DEST/image.json"
 
 echo ${version} > $DEST/version.txt
 jq -n --arg version "$version" '{"image":$version}' > $DEST/version.json
