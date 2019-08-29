@@ -31,14 +31,14 @@ if [ -z "$region" ]; then
   exit 1
 fi
 
-# credentials=$(jq -r '.source.credentials // ""' < "${payload}")
-# if [ -z "${credentials}" ]; then
-#   echo "Resource configuration error. Unable to connect to gcloud api.  Please include credentials."
-#   exit 1
-# else
-#   saveGCloudJsonKey "${credentials}"
-#   activateGCloudAccount
-# fi
+credentials=$(jq -r '.source.credentials // ""' < "${payload}")
+if [ -z "${credentials}" ]; then
+  echo "Resource configuration error. Unable to connect to gcloud api.  Please include credentials."
+  exit 1
+else
+  saveGCloudJsonKey "${credentials}"
+  activateGCloudAccount
+fi
 #gcloud compute images list --filter="name:${version}" --format="json" --project your-project > "$DEST/image.json" ##project not needed but keeping as a follow up
 # --optional resource configs
 extraargs=""
