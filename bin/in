@@ -3,10 +3,9 @@
 set -eu -o pipefail
 exec 3>&1 1>&2
 
-. /opt/resource/common
+ . /opt/resource/common
 
 DEST="$1"
-
 
 payload=$(mktemp /tmp/resource-in.XXXXXX)
 cat > "${payload}" <&0
@@ -15,7 +14,7 @@ DEBUG=$(jq -r '.source.debug // false' < "${payload}")
 if [ $DEBUG == "true" ]; then
   set -x
 fi
-
+echo "1"
 if [ $DEBUG == "true" ]; then
   echo $DEST
 fi
@@ -32,21 +31,21 @@ if [ -z "$region" ]; then
   exit 1
 fi
 
-credentials=$(jq -r '.source.credentials // ""' < "${payload}")
-if [ -z "${credentials}" ]; then
-  echo "Resource configuration error. Unable to connect to gcloud api.  Please include credentials."
-  exit 1
-else
-  saveGCloudJsonKey "${credentials}"
-  activateGCloudAccount
-fi
-
+# credentials=$(jq -r '.source.credentials // ""' < "${payload}")
+# if [ -z "${credentials}" ]; then
+#   echo "Resource configuration error. Unable to connect to gcloud api.  Please include credentials."
+#   exit 1
+# else
+#   saveGCloudJsonKey "${credentials}"
+#   activateGCloudAccount
+# fi
 #gcloud compute images list --filter="name:${version}" --format="json" --project your-project > "$DEST/image.json" ##project not needed but keeping as a follow up
 # --optional resource configs
 extraargs=""
 project=$(jq -r '.source.project // ""' < "${payload}")
-if [ -z "${project}" ]; then
-  extraargs+=('--project="${project}"')
+if [ ! -z "${project}" ]; then
+  extraargs+=(--project="${project}")
+fi
 
 gcloud compute images list --filter="name:${version}" --format="json" ${extraargs} > "$DEST/image.json"
 
