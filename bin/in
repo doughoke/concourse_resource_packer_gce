@@ -44,7 +44,7 @@ fi
 extraargs=""
 project=$(jq -r '.source.project // ""' < "${payload}")
 if [ ! -z "${project}" ]; then
-  extraargs+=(--project="${project}")
+   extraargs="${extraargs}--project=\"${project}\""
 fi
 
 gcloud compute images list --filter="name:${version}" --format="json" ${extraargs} > "$DEST/image.json"

@@ -46,8 +46,9 @@ fi
 # --optional resource configs
 extraargs=""
 project=$(jq -r '.source.project // ""' < "${payload}")
-if [ -z "${project}" ]; then
-  extraargs+=('--project="${project}"')
+if [ ! -z "${project}" ]; then
+   extraargs="${extraargs}--project=\"${project}\""
+fi
 
 
 gcloud compute images list --filter="family:${family}" --format="json" --sort-by="creation_date" ${extraargs} | jq 'map({ "image": .})' >&3
