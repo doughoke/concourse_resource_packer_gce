@@ -3,7 +3,7 @@
 set -eu -o pipefail
 exec 3>&1 1>&2
 
-#. /opt/resource/common
+. /opt/resource/common
 
 payload=$(mktemp /tmp/resource-check.XXXXXX)
 cat > "${payload}" <&0
