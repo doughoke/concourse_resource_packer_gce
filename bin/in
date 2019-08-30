@@ -53,4 +53,4 @@ echo ${version} > $DEST/version.txt
 jq -n --arg version "$version" '{"image":$version}' > $DEST/version.json
 
 
-:jq '{"version": {"image": .[0].name}, "metadata": [{"name": "id", "value": .[0].id},{"name": "family", "value": .[0].family},{"name": "creation_ts", "value": .[0].creationTimestamp},{"name": "self_link", "value": .[0].selfLink}]}' < "$DEST/image.json" >&3
+jq '{"version": {"image": .[0].name}, "metadata": [{"name": "id", "value": .[0].id},{"name": "family", "value": .[0].family},{"name": "creation_ts", "value": .[0].creationTimestamp},{"name": "self_link", "value": .[0].selfLink}]}' < "$DEST/image.json" >&3
