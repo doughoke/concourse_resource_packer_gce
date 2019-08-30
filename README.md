@@ -13,7 +13,9 @@ This is spawned from
 - `project` (optional string): The project name the image is in (should be used when the account may not have permission to the default parent account)
 - `region` (required string): The GCP region to work in
 - `credentials` (required string): for GCP account
+- `family` (optional string): used for check if you are triggering against an image family
 - `debug` (optional string): defaults to false
+
 
 ## Behaviour
 
@@ -54,6 +56,7 @@ resources:
   source:
     region: us-central1a
     credentials: (gce_json_key)
+    family: centos
 
 - name: created-image
   type: packer-gce
@@ -74,8 +77,6 @@ jobs:
     trigger: true
   - get: base-gce-image
     trigger: true
-    params:
-      family: centos
   - put: created-image
     params:
       template: my-packer-template-source/packer_template.json

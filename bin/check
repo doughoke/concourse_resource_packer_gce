@@ -15,7 +15,7 @@ fi
 
 
 if [ $DEBUG == "true" ]; then
-  echo${payload}
+  echo ${payload}
 fi
 
 region=$(jq -r '.source.region // ""' < "${payload}")
@@ -28,13 +28,9 @@ if [ -z "$region" ]; then
   exit 1
 fi
 
-family=$(jq -r '.params.family // ""' < "${payload}")
+family=$(jq -r '.source.family // ""' < "${payload}")
 if [ -z "${family}" ]; then
-  echo "paramater on get configuration error. Unable to determine image family: param on get:"
-  echo "EXAMPLE:"
-  echo "get: image-resource-name"
-  echo "params:"
-  echo "  family: my-image-family"
+  echo "Resource configuration error. Unable to determine image family: param"
   exit 1
 fi
 
