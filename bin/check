@@ -13,6 +13,11 @@ if [ $DEBUG == "true" ]; then
   set -x
 fi
 
+
+if [ $DEBUG == "true" ]; then
+  echo${payload}
+fi
+
 region=$(jq -r '.source.region // ""' < "${payload}")
 if [ -z "$region" ]; then
   region=$GCP_REGION
