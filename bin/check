@@ -25,11 +25,11 @@ fi
 
 family=$(jq -r '.params.family // ""' < "${payload}")
 if [ -z "${family}" ]; then
-  family=$GCP_IMAGE_FAMILY
-fi
-
-if [ -z "$family" ]; then
-  echo "Resource get configuration error. Unable to determine image family"
+  echo "paramater on get configuration error. Unable to determine image family: param on get:"
+  echo "EXAMPLE:"
+  echo "get: image-resource-name"
+  echo "params:"
+  echo "  family: my-image-family"
   exit 1
 fi
 
