@@ -52,5 +52,6 @@ if [ ! -z "${project}" ]; then
 fi
 
 
-gcloud compute images list --filter="family:${family}" --format="json" --sort-by="creation_date" ${extraargs} | jq 'map({ "image": .})' >&3
+gcloud compute images list --filter="family:${family}" --format="json" --sort-by="creation_date" ${extraargs} || jq '[{"name": .[].name}]' >&3
+
 #aws ec2 describe-images --region $region $owners $executable_users $filters_param "${filters[@]}" --query "sort_by(Images, &CreationDate)[].ImageId" | jq 'map({ "ami": .})' >&3
