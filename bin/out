@@ -59,14 +59,11 @@ done
 
 jq '.params|del(.template,.var_file) // empty' < "${payload}" > /tmp/vars.json
 
-##Do I need this?
-#cd $(dirname $SRC/${template})
-
 packer validate $ARGS -var-file=/tmp/vars.json $SRC/${template}
 packer build -machine-readable $ARGS -var-file=/tmp/vars.json $SRC/${template} \
   | tee /tmp/output | awk -F, '/,ui,/ { print $5 }' | sed -u 's#%!(PACKER_COMMA)#,#g;s#\\n#\n#g'
 
 image=$(awk -F, '$5 == "id" { print $6 }' /tmp/output )
 
-jq -n --arg image "$image" '{ "version": { "image": $image }, "metadata": [] }' > /tmp/out-version.json.test
+#jq -n --arg image "$image" '{ "version": { "image": $image }, "metadata": [] }' > /tmp/out-version.json.test
 jq -n --arg image "$image" '{ "version": { "image": $image }, "metadata": [] }' >&3
