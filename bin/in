@@ -17,6 +17,7 @@ fi
 echo "1"
 if [ $DEBUG == "true" ]; then
   echo $DEST
+  echo ${payload}
 fi
 
 version=$(jq -r '.version.image' < "${payload}")
