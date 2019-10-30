@@ -52,4 +52,4 @@ if [ ! -z "${project}" ]; then
 fi
 
 
-gcloud compute images list --filter="family:${family}" --format="json" --sort-by="creation_date" ${extraargs} | jq '[{"image": .[].name}]' >&3
+gcloud compute images list --filter="family:${family}" --format="json" --sort-by="creation_date" ${extraargs} | jq '[{"name": .[].name}]' >&3
