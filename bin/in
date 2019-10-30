@@ -20,7 +20,7 @@ if [ $DEBUG == "true" ]; then
   echo ${payload}
 fi
 
-version=$(jq -r '.version.image' < "${payload}")
+version=$(jq -r '.version.name' < "${payload}")
 
 region=$(jq -r '.source.region // ""' < "${payload}")
 if [ -z "$region" ]; then
