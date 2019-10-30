@@ -65,5 +65,13 @@ packer build -machine-readable $ARGS -var-file=/tmp/vars.json $SRC/${template} \
 
 image=$(awk -F, '$5 == "id" { print $6 }' /tmp/output )
 
-jq -n --arg image "$image" '{ "version": { "image": $image }, "metadata": [] }' > /tmp/out-version.json.test
-jq -n --arg image "$image" '{ "version": { "image": $image }, "metadata": [] }' >&3
+extraargs=""
+project=$(jq -r '.source.project // ""' < "${payload}")
+if [ ! -z "${project}" ]; then
+   extraargs="${extraargs}--project=${project}"
+fi
+
+gcloud compute images list --filter="name:${image}" --format="json" ${extraargs} | jq '{"version": {"image": .[0].name}, "metadata": [{"name": "id", "value": .[0].id},{"name": "family", "value": .[0].family},{"name": "creation_ts", "value": .[0].creationTimestamp},{"name": "self_link", "value": .[0].selfLink}]}' >&3
+
+#jq -n --arg image "$image" '{ "version": { "image": $image }, "metadata": [] }' > /tmp/out-version.json.test
+#jq -n --arg image "$image" '{ "version": { "image": $image }, "metadata": [] }' >&3
