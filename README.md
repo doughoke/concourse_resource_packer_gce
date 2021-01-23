@@ -23,7 +23,7 @@ This is spawned from
 
 Returns an ordered list of versions that match the criteria specified in the source.  This can be used to trigger a new build when a new version of a GCE Image is created.
 
-### `in`: Get metadata about an AMI
+### `in`: Get metadata about an GCP Image
 
 Provides 3 files:
 - `version.txt` - a text file containing the selected Image Name
