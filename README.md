@@ -19,7 +19,7 @@ This is spawned from
 
 ## Behaviour
 
-### `check`: Check for new versions of a GCE Image
+### `check`: Check for new versions of a GCP Image
 
 Returns an ordered list of versions that match the criteria specified in the source.  This can be used to trigger a new build when a new version of a GCE Image is created.
 
