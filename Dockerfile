@@ -1,4 +1,4 @@
-FROM google/cloud-sdk:370.0.0-alpine
+FROM google/cloud-sdk:419.0.0-alpine
 
 RUN apk --no-cache add jq ca-certificates openssh-client sed
 
